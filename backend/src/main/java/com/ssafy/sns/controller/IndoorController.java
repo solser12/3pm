@@ -92,12 +92,13 @@ public class IndoorController {
             @ApiImplicitParam(name = "feedId", value = "피드 번호", required = true)
     })
     @GetMapping(value = "/{feedId}", produces = "application/json; charset=utf8")
-    public ResponseEntity<FeedResponseDto> getFeed(@PathVariable("feedId") Long feedId) {
+    public ResponseEntity<FeedResponseDto> getFeed(@PathVariable("feedId") Long feedId, HttpServletRequest request) {
         HttpStatus status = HttpStatus.ACCEPTED;
+        Long userId = jwtService.findId(request.getHeader("Authorization"));
 
         IndoorResponseDto indoorResponseDto = null;
         try {
-            indoorResponseDto = (IndoorResponseDto) indoorService.read(feedId);
+            indoorResponseDto = (IndoorResponseDto) indoorService.read(userId, feedId);
             logger.info("getFeed = 꽃보다집 글 가져오기 : {}", indoorResponseDto);
             status = HttpStatus.OK;
         } catch (Exception e) {

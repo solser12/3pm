@@ -33,7 +33,7 @@ public class SearchServiceImpl implements SearchService{
         List<Feed> feedList = searchRepository.searchFeeds(hash);
         List<FeedResponseDto> indoorResponseDtoList = new ArrayList<>();
         for (Feed feed : feedList) {
-            indoorResponseDtoList.add(new FeedResponseDto(feed, feedClapRepository.findClapAll(feed).size()));
+            indoorResponseDtoList.add(new FeedResponseDto(feed, feedClapRepository.findClapAll(feed).size(), false));
         }
         return indoorResponseDtoList;
     }

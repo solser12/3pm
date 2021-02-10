@@ -1,15 +1,13 @@
 package com.ssafy.sns.service;
 
+import com.ssafy.sns.domain.follow.Follow;
 import com.ssafy.sns.domain.hashtag.FeedHashtag;
 import com.ssafy.sns.domain.hashtag.Hashtag;
 import com.ssafy.sns.domain.newsfeed.Feed;
 import com.ssafy.sns.domain.newsfeed.Indoor;
 import com.ssafy.sns.domain.user.User;
 import com.ssafy.sns.dto.newsfeed.*;
-import com.ssafy.sns.repository.FeedClapRepositoryImpl;
-import com.ssafy.sns.repository.HashtagRepositoryImpl;
-import com.ssafy.sns.repository.FeedRepositoryImpl;
-import com.ssafy.sns.repository.UserRepository;
+import com.ssafy.sns.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -32,13 +31,14 @@ public class IndoorServiceImpl implements FeedService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
     private final FileServiceImpl fileService;
+    private final FollowRepository followRepository;
 
     @Override
     public FeedListResponseDto findMyList(Long id, int num) {
         List<Feed> indoorList = feedRepository.findMyList(id, num);
         List<IndoorResponseDto> indoorResponseDtoList = new ArrayList<>();
         for (Feed feed : indoorList) {
-            indoorResponseDtoList.add(new IndoorResponseDto((Indoor) feed, feedClapRepository.findClapAll(feed).size()));
+            indoorResponseDtoList.add(new IndoorResponseDto((Indoor) feed, feedClapRepository.findClapAll(feed).size(), false));
         }
         return new FeedListResponseDto<>(indoorResponseDtoList, num + indoorList.size());
     }
@@ -48,15 +48,24 @@ public class IndoorServiceImpl implements FeedService {
         List<Feed> indoorList = feedRepository.findList(num);
         List<IndoorResponseDto> indoorResponseDtoList = new ArrayList<>();
         for (Feed feed : indoorList) {
-            indoorResponseDtoList.add(new IndoorResponseDto((Indoor) feed, feedClapRepository.findClapAll(feed).size()));
+            indoorResponseDtoList.add(new IndoorResponseDto((Indoor) feed, feedClapRepository.findClapAll(feed).size(), false));
         }
         return new FeedListResponseDto<>(indoorResponseDtoList, num + indoorList.size());
     }
 
     @Override
-    public FeedResponseDto read(Long id) {
+    public FeedResponseDto read(Long userId, Long id) {
         Indoor indoor = (Indoor) feedRepository.findById(id);
-        return new IndoorResponseDto(indoor, feedClapRepository.findClapAll(indoor).size());
+        User feedMaker = indoor.getUser();
+        User user = userRepository.findById(userId).orElseThrow();
+        List<Follow> collect = followRepository.findAllByFromUser(user)
+                .stream()
+                .filter(follow -> follow.getToUser().getId() == feedMaker.getId())
+                .collect(Collectors.toList());
+
+        boolean isFollow = collect.size() > 0;
+
+        return new IndoorResponseDto(indoor, feedClapRepository.findClapAll(indoor).size(), isFollow);
     }
 
     @Override

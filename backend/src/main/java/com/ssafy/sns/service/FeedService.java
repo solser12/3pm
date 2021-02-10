@@ -15,7 +15,7 @@ public interface FeedService {
     FeedListResponseDto readList(int num);
 
     // 피드 글 불러오기
-    FeedResponseDto read(Long id);
+    FeedResponseDto read(Long userId, Long id);
 
     // 피드 글쓰기
 
