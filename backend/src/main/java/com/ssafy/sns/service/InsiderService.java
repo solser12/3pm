@@ -34,7 +34,7 @@ public class InsiderService implements FeedService {
     }
 
     @Override
-    public FeedResponseDto read(Long id) {
+    public FeedResponseDto read(Long userId, Long feedId) {
         return null;
     }
 
