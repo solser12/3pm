@@ -58,8 +58,9 @@ export default {
   },
   data() {
     return {
-      grouplist: [{}, {}, {}, {}],
-      search_grouplist: [{}, {}, {}],
+      grouplist: [],
+      search_grouplist: [],
+      check_img_alternate: false,
     };
   },
   methods: {
