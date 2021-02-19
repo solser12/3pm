@@ -11,7 +11,7 @@
           <div>
             그룹에 가입해주세요
           </div>
-          <div @click="goToGroupPage" class="newsfeed-detail-not-member-btn">
+          <div @click="goToGroupDetail" class="newsfeed-detail-not-member-btn">
             그룹으로 이동하기
           </div>
         </div>
